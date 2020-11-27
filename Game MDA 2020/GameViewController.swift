@@ -34,9 +34,14 @@ class GameViewController: UIViewController {
         button.layer.cornerRadius = 15
         button.setTitle("Restart", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 40)
+        button.addTarget(self, action: #selector(restartGame), for: .touchUpInside)
         
         //Add button to the scene
         scnView.addSubview(button)
+    }
+    
+    func addShip() {
+        scene.rootNode.addChildNode(ship)
     }
     
     /// clone new ship create
@@ -46,8 +51,8 @@ class GameViewController: UIViewController {
         ship = scene.rootNode.childNode(withName: "ship", recursively: true)!.clone()
         
         // Move ship far away
-        let x = 25
-        let y = 25
+        let x = Int.random(in: -25 ... 25)
+        let y = Int.random(in: -25 ... 25)
         let z = -105
         ship.position = SCNVector3(x, y, z)
         ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
@@ -126,12 +131,19 @@ class GameViewController: UIViewController {
         
         // Add ship to the scene
         let ship = getShip()
-        scene.rootNode.addChildNode(ship)
+        addShip()
         
         addButton()
     }
     
     //MARK: - Actions
+    @objc func restartGame() {
+        button.isHidden =  true
+        removeShip()
+        ship = getShip()
+        addShip()
+    }
+    
     @objc
     func handleTap(_ gestureRecognize: UIGestureRecognizer) {
         // retrieve the SCNView
