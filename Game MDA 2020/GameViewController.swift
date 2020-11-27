@@ -15,6 +15,7 @@ class GameViewController: UIViewController {
     let button = UIButton()
     
     //MARK: - Stored Properties
+    var ship: SCNNode!
     var scene: SCNScene!
     var scnView: SCNView!
 
@@ -24,7 +25,7 @@ class GameViewController: UIViewController {
         let midX = scnView.frame.midX
         let midY = scnView.frame.midY
         let width: CGFloat = 200
-        let height: CGFloat = 100
+        let height: CGFloat = 50
         button.frame = CGRect(x: midX - width/2, y: midY - height/2, width: width, height: height)
         
         //configure button
@@ -42,7 +43,7 @@ class GameViewController: UIViewController {
     /// - Returns: SCNNode with new ship
     func getShip() -> SCNNode {
         let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
+        ship = scene.rootNode.childNode(withName: "ship", recursively: true)!.clone()
         
         // Move ship far away
         let x = 25
@@ -52,9 +53,14 @@ class GameViewController: UIViewController {
         ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
         
         //Add animation to move the ship to origin
-        ship.runAction(.move(to: SCNVector3(), duration: 5))
+        ship.runAction(.move(to: SCNVector3(), duration: 5), completionHandler: {
+            DispatchQueue.main.async {
+                self.button.isHidden = false
+            }
+        })
         
-        return ship.clone()
+        
+        return ship
     }
     
     // Finds and removes the ship from the scene
