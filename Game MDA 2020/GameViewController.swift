@@ -21,6 +21,7 @@ class GameViewController: UIViewController {
     var scnView: SCNView!
     var shipLife = Int()
     var attack  = Int()
+    var duration: TimeInterval = 5
     var score = 0 {
         didSet {
             print(score)
@@ -74,10 +75,10 @@ class GameViewController: UIViewController {
         ship.position = SCNVector3(x, y, z)
         ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
         attack = 0
-        shipLife = 5
+        shipLife = 3
         
         //Add animation to move the ship to origin
-        ship.runAction(.move(to: SCNVector3(), duration: 5), completionHandler: {
+        ship.runAction(.move(to: SCNVector3(), duration: duration), completionHandler: {
             DispatchQueue.main.async {
                 self.button.isHidden = false
                 self.label.text = "Game Over\nScore: \(self.score)"
@@ -190,6 +191,7 @@ class GameViewController: UIViewController {
                 self.attack += 1
                 if self.attack == self.shipLife {
                     self.ship.removeFromParentNode()
+                    self.duration *= 0.9
                     self.score += 1
                     self.ship = self.getShip()
                     self.addShip()
