@@ -13,13 +13,30 @@ class GameViewController: UIViewController {
     
     // MARK: - Outlets
     let button = UIButton()
+    let label = UILabel()
     
     //MARK: - Stored Properties
     var ship: SCNNode!
     var scene: SCNScene!
     var scnView: SCNView!
+    var shipLife = Int()
+    var attack  = Int()
+    var score = 0 {
+        didSet {
+            print(score)
+            label.text = "Score: \(score)"
+        }
+    }
 
     //MARK: - Methods
+    func addLabel() {
+        label.font = UIFont.systemFont(ofSize: 30)
+        label.frame = CGRect(x: 0, y: 0, width: scnView.frame.width, height: 100)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        scnView.addSubview(label)
+        score = 0
+    }
     /// Sdds a button to the scene view
     func addButton() {
         let midX = scnView.frame.midX
@@ -56,11 +73,14 @@ class GameViewController: UIViewController {
         let z = -105
         ship.position = SCNVector3(x, y, z)
         ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
+        attack = 0
+        shipLife = 5
         
         //Add animation to move the ship to origin
         ship.runAction(.move(to: SCNVector3(), duration: 5), completionHandler: {
             DispatchQueue.main.async {
                 self.button.isHidden = false
+                self.label.text = "Game Over\nScore: \(self.score)"
             }
         })
         
@@ -134,6 +154,7 @@ class GameViewController: UIViewController {
         addShip()
         
         addButton()
+        addLabel()
     }
     
     //MARK: - Actions
@@ -162,16 +183,18 @@ class GameViewController: UIViewController {
             
             // highlight it
             SCNTransaction.begin()
-            SCNTransaction.animationDuration = 0.5
+            SCNTransaction.animationDuration = 0.2
             
             // on completion - unhighlight
             SCNTransaction.completionBlock = {
-                SCNTransaction.begin()
-                SCNTransaction.animationDuration = 0.5
+                self.attack += 1
+                if self.attack == self.shipLife {
+                    self.ship.removeFromParentNode()
+                    self.score += 1
+                    self.ship = self.getShip()
+                    self.addShip()
+                }
                 
-                material.emission.contents = UIColor.black
-                
-                SCNTransaction.commit()
             }
             
             material.emission.contents = UIColor.red
